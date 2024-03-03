@@ -1,44 +1,64 @@
+// Borrar lista de personajes y Rederizar una página de personajes
+// Navegar a la siguiente página
+// Navegar a la página anterior
+// getPersonajes()
 
-const ulDOM=document.getElementById('character-list');
-const botonPre=document.getElementById('prev-page');
-const botonNext=document.getElementById('next-page');
+const container = document.getElementById('character-list')
 
-let i=0;
-                
-    
-function navegar(i){
+const prevPageButton = document.getElementById('prev-page')
+const nextPageButton = document.getElementById('next-page')
 
-        fetch(' https://rickandmortyapi.com/api/character/?page='+i)
-        .then(res=>{
-            return res.json();
-        })
-        .then((data)=> {
-        
-            data.forEach((element) => {
-                const li1DOM=document.createElement("li")
-                const li2DOM=document.createElement("li")
-                const li3DOM=document.createElement("li")
-                
-        
-                li1DOM.innerText(`$(element.name)`)
-                li2Dom.innerText(`$(element.species)`)
-                li3Dom.innerText(`$(element.image)`)
-        
-                ulDOM.appendChild(li1DOM)
-                ulDOM.appendChild(li2DOM)
-                ulDOM.appendChild(li3DOM)
-                
-            });
-                
-                
-            })
-        
-        
-}
-        
+const baseURL = 'https://rickandmortyapi.com/api/character/?page='
 
+let currentPage = 1
+let pageCount = null
 
-botonNext.addEventListener('click',(navegar)=>{
+getCharacters(currentPage)
 
+prevPageButton.addEventListener('click', function () {
+	if (currentPage === 1) return
+
+	getCharacters(--currentPage)
 })
 
+nextPageButton.addEventListener('click', function () {
+	if (currentPage === pageCount) return
+
+	getCharacters(++currentPage)
+})
+
+function getCharacters(page) {
+	const endpoint = baseURL + page
+
+	fetch(endpoint)
+		.then((res) => res.json())
+		.then((data) => {
+			pageCount = data.info.pages
+
+			renderCharacters(data.results)
+		})
+		.catch((err) => {
+			alert('Error al obtener recursos del servidor')
+		})
+}
+
+function renderCharacters(characters) {
+	container.innerHTML = ''
+
+	characters.forEach((character) => {
+		container.innerHTML += `
+      <article class="card">
+        <img class="card__image" src="${character.image}" alt="${character.name}" />
+        <ul class="card__details">
+          <li className="card__detail">
+            <p><b className="card__label">Name:</b> ${character.name}</p>
+          </li>
+          <li className="card__detail">
+            <p><b className="card__label">Specie:</b> ${character.species}</p>
+
+          </li>
+        </ul>
+      </article>
+    `
+	})
+}
